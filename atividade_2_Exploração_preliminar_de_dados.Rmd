@@ -37,7 +37,7 @@ Responda às perguntas abaixo:
 
 -   **ID:** Quantitativa Discreta
 
--   **Identificacao:** Quantitativa Discreta
+-   **Identificacao:** Qualitativa Nominal
 
 -   **Local:** Qualitativa Nominal
 
