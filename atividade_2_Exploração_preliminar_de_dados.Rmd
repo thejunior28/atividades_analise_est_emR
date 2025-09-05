@@ -1,0 +1,168 @@
+---
+title: 'Atividade: 14 de agosto'
+author: "Richard Castro Júnior"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+Uma pesquisa avaliou a qualidade da água de rios e lagoas urbanizados de um grande município. Amostras foram retiradas de vários pontos de cada local e organizadas num banco de dados no Excel. As informações coletadas foram:
+
+**a)** Identificação da amostra;
+
+**b)** Nome do local;
+
+**c)** Presença de coliformes;
+
+**d)** Presença de criadouro durante a visita;
+
+**e)** Valor de nitrato, em mg/L.
+
+**f)** Valor de PH.
+
+A seguir, tem-se uma parte do banco de dados.
+
+```{r}
+library(readxl)
+dados <- read_excel("C:/Users/richa/Desktop/Doutorado/Disciplinas/4º semestre/Análise Estatísticas em R/Atividades/Atividade 2/dados_atividade.xlsx", 
+    sheet = "dados", col_types = c("numeric", 
+        "numeric", "text", "text", "numeric", 
+        "numeric"))
+View(dados)
+```
+
+Responda às perguntas abaixo:
+
+**a)** Classifique cada uma das variáveis do estudo.
+
+-   **ID:** Quantitativa Discreta
+
+-   **Identificacao:** Quantitativa Discreta
+
+-   **Local:** Qualitativa Nominal
+
+-   **Presenca_Coliforme:** Qualitativa Nominal
+
+-   **Nitrato:** Quantitativa Contínua
+
+-   **PH:** Quantitativa Contínua
+
+**b)** Verifique a existência de pontos discrepantes de nitrato e PH por meio de gráficos e estatísticas descritivas. Realize a correção das informações implausíveis, visto que houve o esquecimento do ponto como erro de digitação.
+
+```{r}
+nitrato <- dados$Nitrato
+summary(nitrato)
+sd(nitrato,na.rm = TRUE)
+var(nitrato,na.rm = TRUE)
+```
+
+```{r}
+library(ggplot2)
+# Boxplot para Nitrato
+ggplot(dados, aes(y = Nitrato)) + geom_boxplot(fill = "lightblue") + labs(title = "Boxplot de Nitrato", y = "Valores de Nitrato") + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
+```
+
+Conforme as informações das estatísticas descritivas e do gráfico boxplot, vê-se que não houve o esquecimento do ponto como erro de digitação nos dados de nitrato, apesar de haver *outliers*. No entanto, um dos ID ficou sem informação, necessitando da inserção de um ponto.
+
+Para preencher essa lacuna de forma estatisticamente coerente, a melhor abordagem é a imputação de dados, que consiste em substituir o valor ausente por uma estimativa. As opções mais comuns são a média ou a mediana dos valores existentes (Média: 10.01, Mediana: 9.50).
+
+Dado que a própria análise confirmou a presença de outliers, o uso da mediana (9.50) é a prática mais recomendada. A mediana é uma medida de tendência central robusta, ou seja, não é influenciada pelos valores extremos (outliers), representando de forma mais fiel o centro da distribuição dos dados neste cenário. Portanto, sugere-se a inserção do valor 9.50 para o ID sem informação.
+
+```{r}
+ph <- dados$PH
+summary(ph)
+sd(ph,na.rm = TRUE)
+var(ph,na.rm = TRUE)
+```
+
+```{r}
+# Boxplot para PH
+ggplot(dados, aes(y = PH)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(title = "Boxplot de PH", y = "Valores de PH")+
+  theme(axis.title.x = element_blank(),axis.text.x = element_blank(),axis.ticks.x = element_blank())
+```
+
+Como no caso do nitrato, as informações das estatísticas descritivas e do gráfico boxplot do PH mostram que não houve o esquecimento do ponto como erro de digitação. Não há *outliers*. Todavia, oito ID's ficaram sem informação, necessitando da inserção de um ponto.
+
+Partindo da mesma ideia do caso do Nitrato, as duas principais opções são a média ou a mediana (Média: 7.831, Mediana: 8.100). Como a análise não apontou a existência de *outliers* e os valores da média e da mediana estão relativamente próximos, tanto a média quanto a mediana são opções estatisticamente válidas. O uso da média (7.831) é uma abordagem padrão em distribuições que não possuem valores extremos, pois ela representa o "centro de gravidade" dos dados. Alternativamente, a mediana (8.100) também pode ser usada por representar exatamente o valor central. Recomenda-se preencher os oito ID's ausentes com um desses dois valores, sendo a média a escolha mais convencional neste contexto.
+
+**c)** As distribuições de amostras com coliformes entre os locais são diferentes? Avalie por meio de tabelas e gráficos.
+
+```{r}
+coliformes <- dados$Presenca_Coliforme
+local <- dados$Local
+
+attach(dados)
+table(local,coliformes)
+```
+
+```{r}
+attach(dados)
+ggplot(dados, aes(x = Local, fill = Presenca_Coliforme)) +
+  geom_bar(position = "dodge") + labs(title = "Presença de Coliformes por Local", x = "Local", y = "Frequência", fill = "Presença de Coliformes")+scale_x_discrete(labels=c("B. Jeq.","L. Br.","L. Santa","P. Aleg.","R. Bon."))
+```
+
+Conforme a tabela e o gráfico, as distribuições de amostras com coliformes entre os locais são diferentes.
+
+**d)** Construa o histograma e o box-plot do nitrato por local. Calcule as estatísticas descritivas com média, desvio-padrão, quartis do nitrato por local.
+
+```{r}
+attach(dados)
+ggplot(dados, aes(x = Nitrato)) +
+  geom_histogram(binwidth = 1, fill = "cornflowerblue", color = "black") +
+  facet_wrap(~ Local) + labs(title = "Distribuição de Nitrato por Local", x = "Nível de Nitrato",y = "Frequência")
+```
+
+```{r}
+ggplot(dados, aes(x = Local, y = Nitrato, fill = Local)) + geom_boxplot()+ labs(title = "Distribuição de Nitrato por Local", x = "Local", y = "Nível de Nitrato")+scale_x_discrete(labels=c("Bosque. Jeq.","Lagoa Branca","Lagoa Santa","Porto Alegre","Rio Bonito")) + theme(legend.position = "none")
+```
+
+```{r}
+# Média do Nitrato por Local
+print("Médias do Nitrato por Local")
+tapply(nitrato, local, mean, na.rm = TRUE)
+
+# Desvio-padrão do Nitrato por Local
+print("Desvios-padrão do Nitrato por Local")
+tapply(nitrato, local, sd, na.rm = TRUE)
+
+# Quartis do Nitrato por Local
+print("Quartis do Nitrato por Local")
+tapply(nitrato, local, quantile, probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
+```
+
+**e)** Construa o histograma e o box-plot do PH por local. Calcule as estatísticas descritivas com média, desvio-padrão, quartis do PH por local.
+
+```{r}
+attach(dados)
+ggplot(dados, aes(x = PH)) +
+  geom_histogram(binwidth = 1, fill = "cornflowerblue", color = "black") +
+  facet_wrap(~ Local) + labs(title = "Distribuição de PH por Local", x = "PH",y = "Frequência")
+```
+
+```{r}
+ggplot(dados, aes(x = Local, y = PH, fill = Local)) + geom_boxplot()+ labs(title = "Distribuição de PH por Local", x = "Local", y = "PH") +scale_x_discrete(labels=c("Bosque. Jeq.","Lagoa Branca","Lagoa Santa","Porto Alegre","Rio Bonito")) + theme(legend.position = "none")
+```
+
+```{r}
+# Média do PH por Local
+print("Médias do PH por Local")
+tapply(ph, local, mean, na.rm = TRUE)
+
+# Desvio-padrão do PH por Local
+print("Desvios-padrão do PH por Local")
+tapply(ph, local, sd, na.rm = TRUE)
+
+# Quartis do PH por Local
+print("Quartis do PH por Local")
+tapply(ph, local, quantile, probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
+```
+
+**f)** A distribuição de nitrato e PH difere entre os locais avaliados? Discuta a partir das análises dos itens (d) e (e).
+
+A distribuição de Nitrato e PH difere entre os locais, porém de maneiras distintas para cada variável. A distribuição de Nitrato difere significativamente entre os locais, com o Bosque dos Jequitibás se destacando por ter, simultaneamente, os níveis mais altos e a maior variabilidade. A distribuição de PH, por outro lado, é notavelmente similar em todos os locais, não apresentando diferenças expressivas nem na tendência central nem na dispersão dos valores.
+
+A distribuição de Nitrato apresenta diferenças significativas entre os locais, tanto em termos de média e mediana quanto em desvio-padrão. As médias de Nitrato variam consideravelmente, com o Bosque dos Jequitibás apresentando o maior valor (12,48) e Rio Bonito o menor (7,91). As medianas (quartil de 50%) confirmam essa observação. A mediana no Bosque dos Jequitibás é de 12,40, enquanto em Rio Bonito é de 7,65. O boxplot de Nitrato ilustra visualmente essa diferença, mostrando que a "caixa" do Bosque dos Jequitibás está em um patamar muito mais elevado que as demais, principalmente em comparação com Porto Alegre e Rio Bonito. A diferença mais notável está na dispersão dos dados. O Bosque dos Jequitibás possui um desvio-padrão de 3,68, que é mais de três vezes superior ao dos outros locais, cujos valores ficam em torno de 1,0. O boxplot indica uma gama de valores de Nitrato para o Bosque dos Jequitibás. Em contraste, locais como Lagoa Branca e Porto Alegre apresentam caixas mais compactas, sugerindo valores de Nitrato mais consistentes e com menor variação.
+
+Ao contrário do Nitrato, a distribuição do PH é bastante similar e homogênea entre todos os locais avaliados. As médias de PH são muito próximas em todos os locais, variando apenas entre 7,45 (Lagoa Santa) e 8,12 (Bosque dos Jequitibás). As medianas também são semelhantes, situando-se entre 7,85 e 9,00 em todos os pontos de coleta. O boxplot de PH demonstra essa semelhança, com as caixas dos cinco locais posicionadas em alturas muito parecidas, indicando que a média e a mediana do PH não variam significativamente de um lugar para outro. A dispersão dos dados de PH é consistente em todos os locais. Os desvios-padrão são quase idênticos, variando minimamente de 2,13 a 2,35. Essa homogeneidade na variabilidade é claramente visível no boxplot, onde todas as caixas possuem tamanhos e comprimentos de bigodes comparáveis.

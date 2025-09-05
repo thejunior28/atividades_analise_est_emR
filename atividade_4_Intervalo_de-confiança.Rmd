@@ -1,0 +1,94 @@
+---
+title: "Atividade 4"
+author: "Richard Castro Júnior"
+output: word_document
+---
+
+```{r}
+# importando dados do exercício 1
+library(readxl)
+dados1 <- read_excel("C:/Users/richa/Desktop/Doutorado/Disciplinas/4º semestre/Análise Estatísticas em R/Atividades/Atividade 4/dados_atividade.xlsx", 
+    sheet = "Ex1")
+```
+
+1.  Um experimento avaliou o desempenho de uma pomada medicinal natural para o tratamento de feridas dermatológicas.
+
+<!-- -->
+
+a)  Calcule o intervalo de confiança de 95% para a idade média dos pacientes deste estudo.
+b)  Apresente um intervalo de confiança de 95% para a proporção de resultado positivo deste tratamento e verifique se a eficácia é superior a 80%.
+
+```{r}
+# resolução do item a.
+idade <- dados1$Idade
+media <- mean(idade) # media amostral
+dp <- sd(idade) # desvio-padrao amostral
+n <- length(idade)
+q97.5 <- qt(0.975,df=n-1)
+li_mean <- media-q97.5*dp/sqrt(n)
+ls_mean <- media+q97.5*dp/sqrt(n)
+print(paste0("Com confiança de 95%, espera-se que a idade média dos pacientes deste estudo esteja entre ", round(li_mean, 2), " e ",round(ls_mean, 2), " anos."))
+
+# resolução do item b.
+resultados <- dados1$Resultado
+n_res <- length(resultados)
+sucessos <- sum(dados1$Resultado == "Positivo") # Contar o número de resultados "Positivo"
+prop.est=sucessos/n_res # proporção estimada
+q97.5 <- qnorm(0.975) # quantil da Normal
+li_prop <- prop.est-q97.5*sqrt(prop.est*(1-prop.est)/n_res)
+ls_prop <- prop.est+q97.5*sqrt(prop.est*(1-prop.est)/n_res)
+print(paste0("Com confiança de 95%, para a proporção de resultado positivo deste tratamento, o intervalo de confiança é entre ", round(li_prop, 4)*100, "% e ",round(ls_prop, 4)*100, "%. Logo, a eficácia é superior a 80%."))
+```
+
+```{r}
+# importando dados dos exercícios 2 e 3
+library(readxl)
+dados23 <- read_excel("C:/Users/richa/Desktop/Doutorado/Disciplinas/4º semestre/Análise Estatísticas em R/Atividades/Atividade 4/dados_atividade.xlsx", 
+    sheet = "Ex2e3")
+```
+
+2.  Um levantamento deseja estudar as características de morcegos de uma região com o objetivo de verificar se o peso médio é superior a 100 gramas. A partir da amostra dos morcegos, calcule o intervalo de confiança de 95% para o peso médio dos morcegos e verifique o objetivo do estudo.
+
+```{r}
+# resolução da questão 2
+
+pesos <- c(dados23$Insetivoro, dados23$Hematofago)
+
+# Calcular as estatísticas da amostra única
+media <- mean(pesos)
+dp <- sd(pesos)
+n <- length(pesos)
+erro_padrao <- dp / sqrt(n)
+t_critico <- qt(0.975, df = n - 1)
+lim_inferior <- media - t_critico * erro_padrao
+lim_superior <- media + t_critico * erro_padrao
+
+print(paste0(
+  "Com confiança de 95%, o peso médio de todos os morcegos está entre ",
+  round(lim_inferior, 2), " e ", round(lim_superior, 2), " gramas."
+))
+```
+
+3.  Utilizando os dados do exercício anterior, compare a variância do peso dos morcegos insetívoros e hematófagos por meio de intervalo de confiança. Com este resultado, calcule o intervalo de confiança de 95% da diferença dos pesos médios entre os insetívoros e hematófagos.
+
+```{r}
+# resolução da questão 3
+
+ins <- na.omit(dados23$Insetivoro)
+hem <- na.omit(dados23$Hematofago)
+
+n1 <- length(ins)
+n2 <- length(hem)
+var1 <- var(ins)
+var2 <- var(hem)
+
+q2.5 <- qf(0.025, df1 = n1 - 1, df2 = n2 - 1)
+q97.5 <- qf(0.975, df1 = n1 - 1, df2 = n2 - 1)
+
+
+li_mor <- var1/(q97.5*var2) # LI do IC
+ls_mor <- var1/(q2.5*var2) # LS do IC
+
+
+print(paste0("Com confiança de 95%, a razão entre a variância dos pesos dos insetívoros e hematófagos está entre ", round(li_mor, 2), " e ",round(ls_mor, 2), " gramas.")) 
+```

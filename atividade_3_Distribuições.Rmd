@@ -1,0 +1,165 @@
+---
+title: "Atividade 3"
+author: "Richard Castro Júnior"
+output: word_document
+---
+
+1.  Em tanques de um pesqueiro, a probabilidade de cada alevino estar com tamanho ideal de comercialização é igual a 0.70. Ao selecionarmos 20 alevinos ao acaso, qual é a probabilidade de observarmos
+
+<!-- -->
+
+a.  no máximo 12 em condições de venda?
+b.  entre 13 e 17 em condições de venda?
+c.  pelo menos 16 em condições de venda?
+
+```{r}
+#Parâmetros
+n=20 # Número de alevinos
+p=0.7 # Prob. de tamanho ideal
+
+# Respostado item a.
+ans_1a=pbinom(12,size=n,prob=p) #P(X<=12)
+ans_1a=ans_1a*100
+print(paste0("A probabilidade de observarmos no máximo 12 em condições de venda é de ", round(ans_1a, 2), "%."))
+
+# Resposta do item b.
+ans_1b=pbinom(17,size=n,prob=p)-pbinom(12,size=n,prob=p) #P(13<=X<=17)
+ans_1b=ans_1b*100
+print(paste0("A probabilidade de observarmos entre 13 e 17 em condições de venda é de ", round(ans_1b, 2), "%."))
+
+# Resposta do item  c.
+ans_1c= 1-pbinom(15,size=n,prob=p) #P(X>=16)
+ans_1c=ans_1c*100
+print(paste0("A probabilidade de observarmos pelo menos 16 em condições de venda é de ", round(ans_1c, 2), "%."))
+```
+
+2.  Considere que o número de casos de acidentes envolvendo escorpiões segue uma distribuição Poisson com média de 6 por mês em uma cidade. Calcule a probabilidade, de termos, em um mês
+
+<!-- -->
+
+a.  7 acidentes?
+
+b.  pelo menos 4 acidentes?
+
+c.  No máximo 10 acidentes?
+
+    ```{r}
+
+    #Parâmetros
+    lamb=6 #  Média de acidentes por mês
+
+    # Respostado item a.
+    ans_2a=dpois(7,lamb) # P(X=7)
+    ans_2a=ans_2a*100
+    print(paste0("A probabilidade de termos, em um mês, 7 acidentes é de ", round(ans_2a, 2), "%."))
+
+    # Respostado item b.
+    ans_2b=1-ppois(3,lamb) # P(X>=4)
+    ans_2b=ans_2b*100
+    print(paste0("A probabilidade de termos, em um mês, pelo menos 4 acidentes é de ", round(ans_2b, 2), "%."))
+
+    # Respostado item c.
+    ans_2c=ppois(10,lamb) # P(X<=10)
+    ans_2c=ans_2c*100
+    print(paste0("A probabilidade de termos, em um mês, no máximo 10 acidentes é de ", round(ans_2c, 2), "%."))
+    ```
+
+<!-- -->
+
+3.  Suponha que os estágios de câncer no pulmão seguem uma distribuição Multinomial em que p 1 =0.15, p 2 =0.25, p 3 =0.25, p 4 =0.35, em que p i representa a probabilidade de selecionar um paciente com câncer no estágio i. Ao selecionar 20 pacientes em um grande instituto para tratamento oncológico, qual é a probabilidade de observarmos
+
+<!-- -->
+
+a.  3, 5, 5 nos estágios 1 a 3 e os demais no estágio 4?
+b.  5, 4, 3 nos estágios 1 a 3 e os demais no estágio 4?
+
+```{r}
+# Probabilidades para os estágios 1, 2, 3 e 4
+probs <- c(0.15, 0.25, 0.25, 0.35)
+# Número total de pacientes
+n_pacientes <- 20
+
+# Respostado item a.
+est_1a=3
+est_2a=5
+est_3a=5
+est_4a=n_pacientes-(est_1a+est_2a+est_3a)
+ans_3a=dmultinom(c(est_1a,est_2a,est_3a,est_4a),prob=probs) # P(X1=3,X2=5,X3=5,X4=20-(X1+X2+X3))
+ans_3a=ans_3a*100
+print(paste0("A probabilidade de observarmos 3, 5, 5 pacientes nos estágios 1 a 3, respectivamente, e os demais no estágio 4 é de ", round(ans_3a, 2), "%."))
+
+# Respostado item b.
+est_1b=5
+est_2b=4
+est_3b=3
+est_4b=n_pacientes-(est_1b+est_2b+est_3b)
+ans_3b=dmultinom(c(est_1b,est_2b,est_3b,est_4b),prob=probs) # P(X1=5,X2=4,X3=3,X4=20-(X1+X2+X3))
+ans_3b=ans_3b*100
+print(paste0("A probabilidade de observarmos 5, 4, 3 pacientes nos estágios 1 a 3, respectivamente, e os demais no estágio 4 é de ", round(ans_3b, 2), "%."))
+```
+
+4.  Suponha que o ganho de peso de uma gestante segue uma distribuição Normal com média e desvio-padrão iguais a 13 e 5 quilos. Qual é a probabilidade de uma gestante, selecionada ao acaso, ter um ganho de peso
+
+<!-- -->
+
+a.  menor do que 12 quilos?
+b.  maior do que 18 quilos?
+c.  entre 13 e 17 quilos?
+d.  qual é o limite do ganho de peso esperado em 15% dos menores ganhos?
+e.  qual é o limite do ganho de peso esperado em 5% dos maiores ganhos?
+
+```{r}
+
+# Parâmetros
+media=13 # Média
+sigma=5 # Desvio-padrão
+
+# Respostado item a.
+ans_4a=pnorm(12,media,sigma) # P(X<12)
+ans_4a=ans_4a*100
+print(paste0("A probabilidade de uma gestante, selecionada ao acaso, ter um ganho de peso menor do que 12 quilos é de ", round(ans_4a, 2), "%."))
+
+# Respostado item b.
+ans_4b=1-pnorm(18,media,sigma) # P(X>18)
+ans_4b=ans_4b*100
+print(paste0("A probabilidade de uma gestante, selecionada ao acaso, ter um ganho de peso maior do que 18 quilos é de ", round(ans_4b, 2), "%."))
+
+# Respostado item c.
+ans_4c=pnorm(17, media, sigma) - pnorm(13, media, sigma) # P(13<=X<=17)
+ans_4c=ans_4c*100
+print(paste0("A probabilidade de uma gestante, selecionada ao acaso, ter um ganho de peso entre 13 e 17 quilos é de ", round(ans_4c, 2), "%."))
+
+# Respostado item d.
+ans_4d=qnorm(0.15,media,sigma) #quantil 15% menores
+print(paste0("O limite do ganho de peso esperado em 15% dos menores ganhos é de ", round(ans_4d, 2), " quilos."))
+
+# Respostado item e.
+ans_4e=qnorm(0.95,media,sigma) #quantil 5% maiores
+print(paste0("O limite do ganho de peso esperado em 5% dos maiores ganhos é de ", round(ans_4e, 2), " quilos."))
+```
+
+5.  Calcule os limites dos 2.5% e dos 5% maiores valores das distribuições abaixo.
+
+<!-- -->
+
+a.  Qui-Quadrado com 10 graus de liberdade.
+b.  t de Student com 15 graus de liberdade.
+c.  F com 10 e 12 graus de liberdade no numerador e denominador, respectivamente.
+
+```{r}
+
+# Respostado item a.
+ans_5a1=qchisq(0.975,df=10) # Quantil dos 2,5% maiores com 10 graus de liberdade
+ans_5a2=qchisq(0.95,df=10) # Quantil dos 5% maiores com 10 graus de liberdade
+print(paste0("Os limites dos 2.5% e dos 5% maiores valores da distribuição Qui-Quadrado com 10 graus de liberdade são ", round(ans_5a1, 2), " e ", round(ans_5a2, 2), "."))
+
+# Respostado item b.
+ans_5b1=qt(0.975,df=15) # Quantil dos 2,5% maiores com 15 graus de liberdade
+ans_5b2=qt(0.95,df=15) # Quantil dos 5% maiores com 15 graus de liberdade
+print(paste0("Os limites dos 2.5% e dos 5% maiores valores da distribuição t de Student com 15 graus de liberdade são ", round(ans_5b1, 2), " e ", round(ans_5b2, 2), "."))
+
+# Respostado item c.
+ans_5c1=qf(0.975,df1=10,df2=12) # Quantil dos 2,5% maiores com 10 e 12 graus de liberdade no numerador e denominador, respectivamente
+ans_5c2=qf(0.95,df1=10,df2=12) # Quantil dos 5% maiores com 10 e 12 graus de liberdade no numerador e denominador, respectivamente.
+print(paste0("Os limites dos 2.5% e dos 5% maiores valores da distribuição F com 10 e 12 graus de liberdade no numerador e denominador, respectivamente, são ", round(ans_5c1, 2), " e ", round(ans_5c2, 2), "."))
+```
