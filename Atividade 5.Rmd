@@ -1,0 +1,191 @@
+---
+title: "Atividade 5"
+author: "Richard Castro Júnior"
+output: word_document
+---
+
+1.  Uma pesquisa deseja avaliar a eficiência de um medicamento D em desenvolvimento para pacientes com problemas cardíacos. Para realizar esta pesquisa, realizou-se uma amostra piloto com os níveis de colesterol (lipoproteínas de alta densidade, HDL) de alguns pacientes que receberam este medicamento por um determinado período: 81.6; 146.6; 118.9; 126.9; 109.8mg/dL. Calcule o tamanho da amostra necessário para verificar se o nível de colesterol médio é menor do que 130mg/dl? Utilize um nível de significância de 0,05 e poder do teste de 80%.
+
+    ```{r}
+    library(pwr)
+
+    piloto <- c(81.6, 146.6, 118.9, 126.9, 109.8) # Dados da amostra piloto
+
+    media_piloto <- mean(piloto) # Média da amostra
+    dp_piloto <- sd(piloto) # Desvio padrão da amostra
+    print(paste("Média da amostra piloto:", round(media_piloto, 4)))
+    print(paste("Desvio padrão da amostra piloto:", round(dp_piloto, 4)))
+
+    # Cálculo do tamanho do efeito
+    media_h0 <- 130 # Média sob a hipótese nula
+    efeito <- (media_piloto - media_h0) / dp_piloto
+    print(paste("Tamanho do efeito:", round(efeito, 4)))
+
+    # Cálculo do tamanho da amostra necessário
+    pwr.t.test(d = efeito,sig.level = 0.05,power = 0.80,type = "one.sample",alternative = "less")
+    ```
+
+    A média observada na amostra piloto, 116.76, é inferior à média de referência, 130, e o tamanho do efeito de -0.5544 quantifica essa diferença em relação ao desvio padrão. Para este planejamento, foram definidos os seguintes componentes estatísticos:
+
+    -   **Hipóteses:**
+
+        -   **Hipótese Nula**: O nível de colesterol médio dos pacientes tratados com o medicamento D é igual ou superior a 130 mg/dL (o medicamento não é eficaz).
+
+        -   **Hipótese Alternativa**: O nível de colesterol médio dos pacientes tratados com o medicamento D é inferior a 130 mg/dL (o medicamento é eficaz).
+
+    -   **Nível de Significância (**alpha = 0.05), que é a probabilidade máxima de concluirmos que o medicamento é eficaz quando, na verdade, ele não é (erro tipo I).
+
+    -   **Poder do Teste (**= 0.80), que é a probabilidade desejada de concluirmos corretamente que o medicamento é eficaz, caso ele realmente tenha o efeito estimado na amostra piloto (probabilidade de evitar um erro tipo II).
+
+    -   **Valor da Estatística do Teste**: o valor fundamental utilizado é o tamanho do efeito (d = -0.5544).
+
+        O resultado do cálculo indica n = 21.54445. Como o número de pacientes deve ser um inteiro, o valor é arredondado para 22(pacientes para o estudo). Com essa quantidade de participantes, a pesquisa terá 80% de chance de detectar estatisticamente, com significância de 5%, que o medicamento reduz o colesterol para menos de 130 mg/dL, assumindo que a eficácia real do medicamento seja a mesma observada na amostra piloto.
+
+2.  Considerando a pesquisa do exercício anterior, os níveis de colesterol de pacientes submetidos ao medicamento D foram avaliados e estão descritos abaixo.
+
+    ```{r}
+    niveis_colesterol <- c(81.6, 146.6, 118.9, 126.9, 109.8, 138.2, 102.2, 120.8, 134.0, 128.6, 117.5, 110.5, 150.4, 114.1, 108.3, 90.6, 123.9, 114.3, 93.9, 128.1, 121.7, 108.0, 102.0, 113.0, 111.2, 123.3, 129.3, 135.6, 118.2, 136.7)
+
+    # Criar uma tabela (data frame)
+    tabela_colesterol <- data.frame(Colesterol = niveis_colesterol)
+
+    print(tabela_colesterol)
+    ```
+
+    a\. Verifique a suposição de normalidade da variável do estudo (utilize pelo menos dois testes).
+
+    ```{r}
+    # Teste 1: Shapiro-Wilk
+    shapiro.test(niveis_colesterol)
+
+    # Teste 2: Lilliefors
+    library(nortest)
+    lillie.test(niveis_colesterol)
+
+    # Análise Gráfica
+    qqnorm(niveis_colesterol, main="Q-Q Plot para Níveis de Colesterol")
+    qqline(niveis_colesterol, col="red")
+    ```
+
+    **Teste 1.: Shapiro-Wilk**
+
+    -   **Hipóteses**:
+
+        -   H_0: A amostra provém de uma população com distribuição normal.
+
+        -   H_a: A amostra não provém de uma população com distribuição normal.
+
+    -   **Nível de Significância (**alpha): 0,05
+
+    -   **Estatística do teste (W)**: 0.9631
+
+    -   **Valor-p**: 0.3533
+
+        Como o valor-p (0.3533) é maior que o nível de significância (0,05), não há evidências para rejeitar a hipótese nula. Portanto, **podemos assumir que os dados seguem uma distribuição normal**.
+
+    **Teste 2.: Lilliefors**
+
+    -   **Hipóteses**:
+
+        -   H_0: A amostra provém de uma população com distribuição normal.
+
+        -   H_1: A amostra não provém de uma população com distribuição normal.
+
+    -   **Nível de Significância (**alpha): 0,05
+
+    -   **Estatística do teste (D)**: 0.0955
+
+    -   **Valor-p**: 0.6975
+
+        Semelhante ao teste anterior, como o valor-p (0.6975) é maior que 0,05, não rejeitamos a hipótese nula. Este teste **reforça a suposição de normalidade dos dados**.
+
+        O gráfico mostra os pontos (quantis da amostra) bem alinhados com a linha de referência vermelha, o que visualmente suporta a conclusão de que os dados se ajustam bem a uma distribuição normal.
+
+    b\. O nível médio de colesterol HDL destes pacientes é menor do que 130mg/dl? Utilize um nível de significância de 0,05.
+
+    ```{r}
+    # Teste t para uma amostra
+    t.test(niveis_colesterol, mu = 130, alternative = "less")
+    ```
+
+    -   **Hipóteses**:
+
+        -   H_0: O nível médio de colesterol dos pacientes é igual ou maior que 130 mg/dL.
+
+        -   H_a: O nível médio de colesterol dos pacientes é menor que 130 mg/dL.
+
+    -   **Nível de Significância (**alpha): 0,05
+
+    -   **Estatística do teste (t)**: -2.316
+
+    -   **Graus de Liberdade (df)**: 29
+
+    -   **Valor-p**: 0.0139
+
+    -   **Média da Amostra**: 120.45 mg/dL
+
+        Como o valor-p (0.0139) é menor que o nível de significância (0,05), rejeitamos a hipótese nula. **Existem evidências estatísticas para afirmar que o nível médio de colesterol HDL nestes pacientes é, de fato, menor do que 130 mg/dL**.
+
+    c\. Obtenha o intervalo de confiança de 95% para o nível de colesterol médio destes pacientes
+
+    ```{r}
+    t.test(niveis_colesterol, conf.level = 0.95)
+    ```
+
+    O intervalo de confiança para a média é calculado automaticamente pela função `t.test()`. Ele nos dá uma faixa de valores dentro da qual podemos ter 95% de confiança de que a verdadeira média populacional se encontra. Com 95% de confiança, podemos afirmar que o verdadeiro nível médio de colesterol HDL para a população de pacientes submetidos ao medicamento D está entre **112,01 mg/dL e 128,89 mg/dL**. É importante notar que o limite superior deste intervalo (128,89) está abaixo de 130, o que corrobora a conclusão do teste de hipótese do item (b).
+
+3.  A secretaria municipal afirmou que no máximo 10% das residências possuem criadouros de dengue. Um levantamento foi realizado e foram encontrados criadouros de dengue em 42 de 596 residências visitadas.
+
+    a\. Com nível de significância de 0,05, verifique a veracidade da afirmação.
+
+    ```{r}
+    # Teste de proporção para uma amostra
+    prop.test(x = 42, # x = número de sucessos (criadouros encontrados)
+              n = 596, # n = tamanho da amostra (residências visitadas)
+              p = 0.10, # p = proporção sob a hipótese nula
+              alternative = "greater", correct = FALSE)
+    ```
+
+    A secretaria afirmou que no máximo 10% das residências possuem criadouros. O levantamento encontrou 42 criadouros em 596 residências. Para verificar a afirmação, testou-se se a evidência amostral é forte o suficiente para contradizer a secretaria, ou seja, se a proporção real é *maior* que 10%.
+
+    -   **Proporção Amostral**: A proporção de residências com criadouros na amostra é de 7,05%.
+
+    -   **Hipóteses**:
+
+        -   H_0: A proporção de residências com criadouros é no máximo 10% (a afirmação da secretaria é verdadeira).
+
+        -   H_a: A proporção de residências com criadouros é maior que 10% (a afirmação da secretaria é falsa).
+
+    -   **Nível de Significância (**alpha): 0,05
+
+    -   **Estatística do teste (chi-quadrado)**: 6.8219
+
+    -   **Valor-p**: 0.9956
+
+        O valor-p (0.9956) é muito maior que o nível de significância (0,05). Isso significa que não há nenhuma evidência estatística para rejeitar a hipótese nula. Pelo contrário, os dados amostrais (com uma proporção de apenas 7,05%) estão em conformidade com a alegação da secretaria. Portanto, com um nível de significância de 0,05, a afirmação da secretaria municipal é considerada verídica.
+
+    b\. Calcule o intervalo de confiança de 95% para a proporção de residência com criadouro de dengue.
+
+    ```{r}
+    prop.test(x = 42, n = 596, conf.level = 0.95, correct = FALSE)
+    ```
+
+    Com 95% de confiança, podemos afirmar que a verdadeira proporção de residências com criadouros de dengue no município está entre **5,2% e 9,4%**. Como todo o intervalo está abaixo do limite de 10% afirmado pela secretaria.
+
+    c\. Quantas residências devem ser avaliadas num próximo levantamento, considerando o nível de significância de 0,05 e poder de 80% com objetivo de avaliar a afirmação da secretaria municipal?
+
+    ```{r}
+    library(pwr)
+
+    # Cálculo do tamanho do efeito
+    efeito <- ES.h(p1 = 0.15, # p1 = proporção sob a hipótese alternativa que queremos detectar
+                   p2 = 0.10) # p2 = proporção sob a hipótese nula
+
+    # Cálculo do tamanho da amostra 'n'
+    pwr.p.test(h = efeito, 
+               sig.level = 0.05, 
+               power = 0.80, 
+               alternative = "greater")
+    ```
+
+O resultado indica que seriam necessárias aproximadamente 295 residências. Como o número de residências deve ser um valor inteiro, arredondamos para cima. Portanto, **num próximo levantamento, deverão ser avaliadas 296 residências** para ter um poder de 80% de detectar um aumento real na proporção de criadouros para 15%, com um nível de significância de 5%.
