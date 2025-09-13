@@ -178,14 +178,14 @@ output: word_document
     library(pwr)
 
     # Cálculo do tamanho do efeito
-    efeito <- ES.h(p1 = 0.10, # p1 = proporção sob a hipótese alternativa que queremos detectar
-                   p2 = 0.0704698) # p2 = proporção sob a hipótese nula
+    efeito <- ES.h(p1 = 0.0704698, # p1 = proporção sob a hipótese alternativa que queremos detectar
+                   p2 = 0.10) # p2 = proporção sob a hipótese nula
 
     # Cálculo do tamanho da amostra 'n'
     pwr.p.test(h = efeito, 
                sig.level = 0.05, 
                power = 0.80, 
-               alternative = "g")
+               alternative = "l")
     ```
 
-O resultado indica que seriam necessárias aproximadamente 295 residências. Como o número de residências deve ser um valor inteiro, arredondamos para cima. Portanto, num próximo levantamento, deverão ser avaliadas 549 residências para ter um poder de 80% de detectar um aumento real na proporção de criadouros para, aproximadamente, 7,05%, com um nível de significância de 5%.
+O resultado indica que seriam necessárias aproximadamente 549 residências. Como o número de residências deve ser um valor inteiro, arredondamos para cima. Portanto, num próximo levantamento, deverão ser avaliadas 549 residências para ter um poder de 80% de detectar um aumento real na proporção de criadouros para, aproximadamente, 7,05%, com um nível de significância de 5%.
