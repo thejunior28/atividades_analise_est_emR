@@ -1,0 +1,46 @@
+---
+title: "Atividade 7"
+author: "Richard Castro Júnior"
+output: word_document
+---
+
+**Exercício.** Um estudo avaliou a preferência alimentar de espécies de peixes ornamentais de água doce. Os diferentes tipos de rações foram ofertados para cada peixe e analisou-se aquela que o peixe mais se alimentou. A partir das informações experimentais obtidas, verifique, por meio de um teste estatístico, se a preferência por algum tipo de ração depende da espécie do peixe, com nível de significância de 0,05.
+
+As hipóteses para este teste são:
+
+H₀: A preferência por um tipo de ração é independente da espécie do peixe.
+
+H₁: A preferência por um tipo de ração depende da espécie do peixe.
+
+```{r}
+library(readxl)
+dados <- read_excel("dados.xlsx", sheet = "Atividade")
+head(dados)
+attach(dados)
+tabela <- table(Especie,Racao)
+```
+
+```{r}
+chisq.test(tabela)
+```
+
+Com um nível de significância de 0,05, rejeita-se H0, ou seja, existe evidência estatística para afirmar que a preferência alimentar por um tipo de ração depende da espécie do peixe.
+
+```{r}
+tabela <- data.frame(tabela)
+
+library(ggplot2)
+
+ggplot(tabela, aes(x = Racao, y = Especie)) +
+  geom_point(aes(size = Freq), shape = 21, fill = "lightblue") +
+  scale_size_area(max_size = 18) +
+  labs(
+    title = "Preferência Alimentar por Espécie de Peixe",
+    x = "Tipo de Ração",
+    y = "Espécie"
+  ) +
+  guides(size = guide_legend(title = "Frequência")) +
+  geom_text(aes(label = Freq), size = 4, color = "black")
+```
+
+Este gráfico mostra visualmente que os Tetras preferem a Liofilizado, os Paulistinhas a Granulada e os Neons a Liofilizado, apoiando a conclusão do teste estatístico.

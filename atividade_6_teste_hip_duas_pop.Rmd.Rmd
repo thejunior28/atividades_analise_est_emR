@@ -1,0 +1,63 @@
+---
+title: "Atividade 6"
+author: "Richard Castro Júnior"
+output: word_document
+---
+
+1.  Um estudo avaliou o efeito de dois medicamentos num grupo de pacientes com problemas cardíacos. Os pacientes foram aleatoriamente selecionados para receber um dos medicamentos. A idade e os níveis de colesterol (lipoproteínas de alta densidade, HDL) estão disponíveis no arquivo 06_dadosR na planilha Atividade.
+
+```{r}
+library(readxl)
+dados <- read_excel("C:/Users/richa/Desktop/Doutorado/Disciplinas/4º semestre/Análise Estatísticas em R/Atividades/Atividade 6/06_dadosR.xlsx", 
+    sheet = "Atividade")
+head(dados)
+attach(dados)
+```
+
+a.  Verifique a suposição de normalidade da idade e dos níveis de colesterol destes pacientes.
+
+    ```{r}
+    library(nortest)
+    # Verificação de normalidade da idade
+    print("--- Testes de Normalidade para IDADE por Medicamento ---")
+    tapply(Idade,Grupo,shapiro.test)
+    tapply(Idade,Grupo,lillie.test)
+    tapply(Idade,Grupo,ad.test)
+    tapply(Idade,Grupo,cvm.test)
+    # Verificação de normalidade do nível de colesterol
+    print("--- Testes de Normalidade para COLESTEROL por Medicamento ---")
+    tapply(Colesterol,Grupo,shapiro.test)
+    tapply(Colesterol,Grupo,lillie.test)
+    tapply(Colesterol,Grupo,ad.test)
+    tapply(Colesterol,Grupo,cvm.test)
+    ```
+
+    Com base nesses resultados, tanto a variável Idade quanto a variável Colesterol seguem uma distribuição normal em ambos os grupos de medicamento (M1 e M2). Para os testes o *p-value*\>0,05 e, por isso, não há evidências para rejeitar a hipótese de que os dados são normais.
+
+b.  Compare as variâncias da idade e do nível de colesterol dos pacientes que receberam os dois medicamentos, com nível de significância de 0,05.
+
+    ```{r}
+    # análise para a variável Idade
+    var.test(Idade~Grupo) # teste de comparação das variancias
+
+    # análise para a variável Colesterol
+    var.test(Colesterol~Grupo) # teste de comparação das variancias
+    ```
+
+    Tanto para Idade como Colesterol, o *p-value* \> 0.05. Por isso, não rejeitamos H0: assumimos que as variâncias são iguais, concluindo que não existe uma diferença estatisticamente significativa na idade e no nível de colesterol entre os grupos.
+
+c.  Há diferença das médias da idade e do nível de colesterol dos pacientes entre os dois grupos? Utilize o nível de significância de 0,05. Construa os intervalos de confiança de 95% para a diferença de médias entre os grupos das duas variáveis.
+
+    ```{r}
+    # Usamos var.equal= T porque o teste das variâncias nos permitiu.
+    # análise para a variável Idade
+    t.test(Idade~Grupo, var.equal= T)
+    # análise para a variável Colesterol
+    t.test(Colesterol~Grupo, var.equal= T)
+    ```
+
+    Esses resultados indicam conclusões opostas para as variáveis Idade e Colesterol.
+
+    O *p**-**value* = 0.1557 para a variável Idade. Como este valor é maior do que o nível de significância, nós **não rejeitamos a hipótese nula**. O **intervalo de confiança de 95%** [-3.04, 18.48] **contém o valor zero**, o que reforça a conclusão do p-valor. Embora a idade média do Grupo M1 (58.44) seja maior que a do Grupo M2 (50.72), a análise estatística mostra que essa diferença não é grande o suficiente para ser aceita. Portanto, não há diferença estatisticamente significativa na idade média entre os grupos M1 e M2.
+
+    O *p**-**value* = 0.0155 para a variável Colesterol. Este valor é **menor** que o nível de significância de 0.05. Portanto, nós **rejeitamos a hipótese nula**. O **intervalo de confiança de 95%** [2.24, 20.33] é inteiramente positivo e **não contém o valor zero**. A média de colesterol do Grupo M1 (143.99) é maior que a do Grupo M2 (132.70), e o teste confirma que essa diferença é real. Logo, há uma diferença estatisticamente significativa no nível de colesterol entre os grupos M1 e M2 e o nível de colesterol do grupo M1 é, em média, maior que o do grupo M2.
