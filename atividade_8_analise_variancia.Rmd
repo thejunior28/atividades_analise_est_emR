@@ -1,0 +1,49 @@
+---
+title: "Atividade 8"
+author: "Richard Castro Júnior"
+output: word_document
+---
+
+Um estudo avaliou o marcador tumoral CA 15.3 em pacientes com diferentes tipos de câncer.
+
+```{r}
+library(readxl)
+dados <- read_excel("C:/Users/richa/Desktop/Doutorado/Disciplinas/4º semestre/Análise Estatísticas em R/Atividades/Atividade 8/dados.xlsx", col_types = c("numeric", "text", "numeric"))
+head(dados)
+attach(dados)
+```
+
+**a.** A partir das informações amostrais abaixo e com nível de significância de 0,05, há diferença dos marcadores tumorais entre os diferentes tipos de câncer?
+
+```{r}
+modelo <- lm(CA15.3 ~ Câncer, data = dados)
+summary(aov(modelo))
+```
+
+Como o *p-value=* 6.02e-11 é menor que o nível de significância, rejeita-se a hipótese de que as médias dos marcadores tumorais são iguais para todos os tipos de câncer. Portanto, há evidências estatísticas de que existe diferença nos níveis do marcador tumoral CA 15.3 entre os cânceres de colorretal, mama, próstata and pulmão.
+
+**b.** Realize a análise de resíduos para avaliar as suposições do teste utilizado no item anterior.
+
+```{r}
+anova <- aov(modelo)
+
+shapiro.test(anova$residuals) # teste de normalidade para os residuos
+
+plot(anova,1)
+plot(anova,2)
+
+dados[c(26,49,101),]
+```
+
+A normalidade dos resíduos foi confirmada tanto pelo teste de Shapiro-Wilk, com p-*value* = 0,6299, quanto pela inspeção visual do gráfico Q-Q, que demonstrou um bom alinhamento dos pontos à reta teórica. O gráfico *Resíduos vs Valores Ajustados* apresentou uma dispersão aleatória e equilibrada dos pontos entre os grupos, satisfazendo a suposição de homogeneidade das variâncias. Embora alguns pontos atípicos tenham sido identificados, eles não foram suficientes para violar as premissas do modelo, portanto os resultados da análise de variância são considerados válidos e confiáveis.
+
+**c.** Verifique em quais tipos de câncer há diferença significativa dos marcadores tumorais, com nível de significância de 0,05.
+
+```{r}
+library(car)
+TukeyHSD(anova)
+
+pairwise.t.test(CA15.3,Câncer,p.adjust.method = "bonferroni")
+```
+
+Com um nível de significância de 0,05, o teste de Tukey HSD), junto ao teste t com correção de Bonferroni, revelou que há diferença significativa dos marcadores tumorais entre os seguintes pares de tipos de cânceres: Colorretal e Mama, Colorretal e Próstata, Colorretal e Pulmão, Mama e Próstata, e Próstata e Pulmão. A única comparação que não apresentou diferença estatisticamente significativa foi entre os cânceres de Mama e Pulmão.
