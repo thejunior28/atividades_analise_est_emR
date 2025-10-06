@@ -1,0 +1,89 @@
+---
+title: "Atividade 9"
+author: "Richard Castro Júnior"
+output: word_document
+---
+
+**1.** Um levantamento avaliou o impacto da poluição por manuseio de material químico na saúde trabalhadores. No exame de sangue avaliou a quantidade de dióxido de carbono mensurado no sangue e o objetivo é verificar se esta quantidade está relacionada com o tempo de serviço do trabalhador.
+
+```{r}
+library(readxl)
+dados1 <- read_excel("C:/Users/richa/Desktop/Doutorado/Disciplinas/4º semestre/Análise Estatísticas em R/Atividades/Atividade 9/dados.xlsx", 
+    sheet = "AtividadeEx1")
+attach(dados1)
+```
+
+**a.** Construa o gráfico de dispersão do tempo de serviço e a quantidade de dióxido de carbono no sangue.
+
+```{r}
+library(ggplot2)
+ggplot(data=dados1,aes(x=Tempo,y=Sangue))+geom_point()+
+  labs(title="Gráfico de dispersão entre tempo de serviço e quantidade de dióxido de carbono no sangue",
+       x="Tempo de serviço",y="Quantidade de dióxido de carbono no sangue")
+```
+
+**b.** A partir das informações amostrais e com nível de significância de 0,05, há uma relação linear entre a quantidade de dióxido de carbono e o tempo de serviço?
+
+```{r}
+# teste de correlacao populacional
+cor.test(Tempo,Sangue)
+```
+
+Com nível de significância de 0,05, rejeita-se H0, ou seja, há relação linear entre a quantidade de dióxido de carbono e o tempo de serviço.
+
+**c.** Ajuste uma regressão linear simples para a relação entre as duas variáveis do estudo.
+
+```{r}
+ajuste <- lm(Sangue~Tempo)
+# ajuste da reta de regressão e testes de hipóteses
+summary(ajuste)
+
+ggplot(data=dados1,aes(x=Tempo,y=Sangue))+geom_point()+
+  geom_smooth(method='lm')+
+  labs(title="Gráfico de dispersão entre tempo de serviço e quantidade de dióxido de carbono no sangue",x="Tempo de serviço",y="Quantidade de dióxido de carbono no sangue")+ annotate("text",x=35,y=28,label="y=22,99+0,04x,
+           F=599,8, p<0,001")
+```
+
+**d.** Verifique se os coeficientes são diferentes de zero, com nível de significância de 0,05. Determine o intervalo de confiança de 95% para os coeficientes. Interprete os resultados.
+
+```{r}
+confint(ajuste) # calculo de IC
+```
+
+Com nível de significância de 0,05, rejeita-se H0, ou seja, o intercepto é diferente de 0. Em outras palavras, o nível médio de dióxido de carbono no sangue para um trabalhador com tempo de serviço igual a zero está entre 22,73 e 23,25.
+
+Para cada mês adicional de tempo de serviço, o nível de dióxido de carbono no sangue aumenta, em média, entre 0,0365 e 0,0430 unidades.
+
+**e.** Realize a análise de resíduos para avaliar as suposições do teste utilizado no item anterior.
+
+```{r}
+# Análise de resíduos
+residuos <- ajuste$residuals
+shapiro.test(residuos)
+```
+
+Com nível de significância de 0,05, rejeita-se H0, ou seja, os resíduos da reta de regressão estimada possuem distribuição normal.
+
+**2.** Uma pesquisa avaliou pacientes com câncer em um grande hospital. Utilizando as informações de uma amostra de pacientes sobre o estadiamento da doença e o tempo de sobrevida, em meses, determine:
+
+```{r}
+library(readxl)
+dados2 <- read_excel("C:/Users/richa/Desktop/Doutorado/Disciplinas/4º semestre/Análise Estatísticas em R/Atividades/Atividade 9/dados.xlsx", sheet = "AtividadeEx2")
+attach(dados2)
+```
+
+**a.** O gráfico de dispersão entre as duas variáveis do estudo.
+
+```{r}
+library(ggplot2)
+ggplot(data=dados2,aes(x=`Tempo de sobrevida em meses`,y=Estadiamento))+geom_point()+ labs(title="Gráfico de dispersão entre tempo de sobrevida, em meses, e estadiamento",x="Tempo de sobrevida em meses",y="Estadiamento")
+```
+
+**b.** Se há uma relação entre as duas variáveis, com nível de significância de 0,05.
+
+```{r}
+# Teste de Kruskal-Wallis
+kruskal.test(`Tempo de sobrevida em meses` ~ Estadiamento, data = dados2) 
+```
+
+Utilizando o teste de Kruskal-Wallis, uma alternativa não paramétrica, com um nível de significância de 0,05, não se rejeita-se H0, ou seja, há uma relação entre o estadiamento da doença e o tempo de sobrevida.
