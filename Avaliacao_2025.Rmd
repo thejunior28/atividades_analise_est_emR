@@ -1,0 +1,374 @@
+---
+title: "Avaliação"
+author: "Richard Castro Júnior"
+date: "2025-10-09"
+output: word_document
+---
+
+1.  Em vários lugares do mundo, caranguejos apresentam grande importância cultural e socioeconômica, sustentando populações tradicionais extrativistas de baixa renda. Considerando que o tamanho de um caranguejo segue uma distribuição Normal com média de 35 cm e desvio-padrão de 7 cm e, ao selecionar um ao acaso, qual é a probabilidade de que ele tenha um tamanho
+
+<!-- -->
+
+a.  menor do que 30 cm?
+
+    ```{r}
+    # Distribuição Normal
+    media=35
+    sigma=7
+
+    pnorm(30,media,sigma) # P(X<30)
+    ```
+
+    A probabilidade de selecionar um caranguejo menor do que 30 cm é de 23,75%.
+
+b.  entre 25 e 37 cm?
+
+    ```{r}
+    pnorm(37,media,sigma) - pnorm(25,media,sigma) # P(25<X<37)
+    ```
+
+    A probabilidade de o caranguejo ter um tamanho entre 25 cm e 37 cm é de 53,59%.
+
+c.  maior do que 40 cm?
+
+    ```{r}
+    1-pnorm(40,media,sigma) # P(X>40)
+    ```
+
+    A probabilidade de selecionar um caranguejo maior do que 40 cm é de 23,75%.
+
+d.  Qual é o tamanho esperado entre os 15% menores? E dos 7.5% maiores caranguejos?
+
+    ```{r}
+    qnorm(0.15,media,sigma) #quantil 15% menores
+    qnorm(0.925,media,sigma) #quantil 7.5% maiores
+    ```
+
+    O tamanho que separa os 15% menores caranguejos é de 27,74 cm e o tamanho mínimo para um caranguejo estar entre os 7.5% maiores é de 45,08 cm.
+
+<!-- -->
+
+2.  O aleitamento materno é a estratégia que isoladamente mais previne mortes em crianças menores de cinco anos, visto que o leite materno é superior a qualquer outro leite nessa fase da vida, pois é um alimento completo que possui todos os nutrientes que o bebê precisa, sendo de mais fácil digestão. Um estudo avaliou a qualidade de leite materno coletado pelas puérperas e refrigerado numa unidade municipal de saúde. Com as informações que constam no arquivo Excel.
+
+    ```{r}
+    library(readxl)
+    dados2 <- read_excel("C:/Users/richa/Desktop/Doutorado/Disciplinas/4º semestre/Análise Estatísticas em R/Atividades/Avaliação/Dados.xlsx", sheet = "Exercício2",col_types = c("text", "numeric", "numeric"))
+    lactose <- dados2$`Lactose (mg/dL)`
+    fosforo <- dados2$`Fósforo (mg/dL)`
+    ```
+
+<!-- -->
+
+a.  Calcule as estatísticas descritivas e o gráfico de boxplot dos níveis de lactose e de fósforo.
+
+    ```{r}
+    # Estatísticas descritivas do nível de lactose
+    round(summary(lactose),2)
+    print(paste0("Amplitude total: ", max(lactose)-min(lactose)))
+    print(paste0("Amplitude interquartil: ", 6.790-6.160))
+    print(paste0("Variância: ", round(var(lactose),2)))
+    print(paste0("Desvio-padrão: ", round(sd(lactose),2)))
+    print(paste0("Coeficiente de variação: ", round(sd(lactose)*100/mean(lactose),2), "%"))
+
+    # Boxplot do nível de lactose
+    boxplot(lactose, main = "Boxplot do Nível de Lactose", ylab = "Lactose (mg/dL)", col = "lightblue")
+    ```
+
+    ```{r}
+    # Estatísticas descritivas do nível de fósforo
+    summary(fosforo)
+    print(paste0("Amplitude total: ", max(fosforo)-min(fosforo)))
+    print(paste0("Amplitude interquartil: ", 15.64-13.02))
+    print(paste0("Variância: ", round(var(fosforo),2)))
+    print(paste0("Desvio-padrão: ", round(sd(fosforo),2)))
+    print(paste0("Coeficiente de variação: ", round(sd(fosforo)*100/mean(fosforo),2), "%"))
+
+    # Boxplot do nível de fósforo
+    boxplot(fosforo, main = "Boxplot do Nível de Fósforo", ylab = "Fósforo (mg/dL)", col = "lightgreen")
+    ```
+
+b.  Verifique a suposição de normalidade dos níveis de lactose e de fósforo, com nível de significância de 0,05.
+
+    ```{r}
+    library(nortest)
+    shapiro.test(lactose)
+    lillie.test(lactose)
+    ad.test(lactose)
+    cvm.test(lactose)
+    #Observa-se que a suposição de normalidade para os níveis de lactose foi atendida para todos os testes
+    ```
+
+    ```{r}
+    shapiro.test(fosforo)
+    lillie.test(fosforo)
+    ad.test(fosforo)
+    cvm.test(fosforo)
+    #Observa-se que a suposição de normalidade para os níveis de fósforo foi atendida para todos os testes
+    ```
+
+    Com nível de significância de 0,05, a normalidade dos níveis de fósforo foi confirmada por todos os testes. Para os níveis de lactose, a maioria dos testes (Shapiro-Wilk, Lilliefors, Anderson-Darling) não rejeitou a hipótese de normalidade (p \> 0,05), embora o teste de Cramer-von Mises tenha indicado o contrário (p \< 0,05). Dado que o teste de Shapiro-Wilk é frequentemente recomendado e os demais testes corroboram seu resultado, prosseguiremos com a análise paramétrica, mas cientes desta divergência.
+
+c.  O nível de lactose é maior do que 6,2 mg/dL? O nível de fósforo é menor do que 15 mg/dL? Utilize um teste de hipóteses e o nível de significância de 0,05.
+
+    Para este caso, o teste de t Student é a escolha mais apropriada, uma vez que o objetivo é comparar a média de uma amostra com um valor de referência específico e por ser um teste paramétrico, o que significa que ele funciona sob certas condições para ser totalmente confiável, ou seja, há normalidade dos dados.
+
+    Para nível de lactose ser maior do que 6,2 mg/dL, primeiramente, definimos nossas hipóteses:
+
+    -   H₀: A média do nível de lactose é menor ou igual a 6,2 mg/dL.
+
+    -   H₁: A média do nível de lactose é maior do que 6,2 mg/dL.
+
+    ```{r}
+    t.test(lactose,mu = 6.2, alternative = "greater")
+    ```
+
+    Com nível de significância 0,05, rejeita-se H₀, ou seja, o nível médio de lactose é maior do que 6,2 mg/dL..
+
+    Para o nível de fósforo ser menor do que 15 mg/dL, definimos as hipóteses:
+
+    -   H₀: A média do nível de fósforo é maior ou igual a 15 mg/dL.
+
+    -   H₁: A média do nível de fósforo é menor do que 15 mg/dL.
+
+    ```{r}
+    t.test(fosforo, mu = 15, alternative = "less")
+    ```
+
+    Com nível de significância 0,05, não se rejeita H₀, ou seja, o nível médio de fósforo é maior ou igual a 15 mg/dL.
+
+d.  Construa intervalos de confiança de 95% para o nível médio de lactose e fósforo.
+
+    ```{r}
+    t.test(lactose, conf.level = 0.95)
+    ```
+
+    Com 95% de confiança, podemos afirmar que a média verdadeira do nível de lactose no leite materno da população estudada está entre 6,22 mg/dL e 6,56 mg/dL.
+
+    ```{r}
+    t.test(fosforo, conf.level = 0.95)
+    ```
+
+    Com 95% de confiança, podemos afirmar que a média do nível de fósforo no leite materno da população estudada está entre 13,95 mg/dL e 15,14 mg/dL.
+
+e.  Qual seria o tamanho da amostra para verificar as perguntas levantadas no item c, com nível de significância de 0,05 e poder de 80%?
+
+    ```{r}
+    media <- mean(lactose)
+    dp <- sd(lactose)
+
+    efeito <- (media-6.2)/dp
+
+    library(pwr)
+    pwr.t.test(d = efeito, sig.level = 0.05, power = 0.80, type = "one.sample", alternative = "greater")
+    ```
+
+    São necessárias 59 amostras de leite materno para um novo estudo para confirmar com 80% de poder que o nível médio de lactose é realmente superior a 6,2 mg/dL.
+
+    ```{r}
+    media <- mean(fosforo)
+    dp <- sd(fosforo)
+
+    efeito <- (media-15)/dp
+
+    library(pwr)
+    pwr.t.test(d = efeito, sig.level = 0.05, power = 0.80, type = "one.sample", alternative = "less")
+    ```
+
+    São necessárias 120 amostras de leite materno para confirmar com 80% de poder que o nível médio de fósforo é inferior a 15 mg/dL.
+
+<!-- -->
+
+3.  A cefaleia é um dos sintomas mais comuns da medicina, possuindo uma infinidade de causas base: estresse, tabagismo, excesso de ingestão de bebida alcoólica, sono irregular, longos períodos de jejum, problemas oftalmológicos, etc., ou ainda não tendo nenhum causador definido. Uma pesquisa avaliou dois medicamentos para o seu tratamento. Pacientes internados num grande instituto de saúde foram selecionados aleatoriamente para receber um dos medicamentos e verificou-se se houve a melhora da cefaleia. Outras informações tais como sexo e idade também foram levantadas.
+
+    ```{r}
+    library(readxl)
+    dados3 <- read_excel("C:/Users/richa/Desktop/Doutorado/Disciplinas/4º semestre/Análise Estatísticas em R/Atividades/Avaliação/Dados.xlsx", sheet = "Exercício3")
+    attach(dados3)
+    ```
+
+<!-- -->
+
+a.  Apresente o número e a porcentagem de pacientes por sexo que participaram do estudo para cada medicamento.
+
+    ```{r}
+    (tabela <- table(Medicamento,Sexo))
+    round(prop.table(tabela)*100,2)
+    ```
+
+b.  Calcule as estatísticas descritivas da idade por medicamento e verifique a suposição de normalidade com nível de significância de 0,05.
+
+    ```{r}
+    Idade <- dados3$`Idade (anos)`
+    tapply(Idade,Medicamento,summary)
+
+    # Verificação de normalidade da idade
+    print("--- Testes de Normalidade para Idade por Medicamento ---")
+    tapply(Idade,Medicamento,shapiro.test)
+    tapply(Idade,Medicamento,lillie.test)
+    tapply(Idade,Medicamento,ad.test)
+    tapply(Idade,Medicamento,cvm.test)
+    ```
+
+    Foi verificado que apenas pelo teste de Shapiro-Wilk há normalidade há normalidade, considerando exclusivamente o medicamento A. Portanto, não assumimos normalidade.
+
+c.  Há diferença do sexo e idade entre os grupos que receberam os diferentes medicamentos. Faça os testes de hipóteses com nível de significância de 0,05.
+
+    Para comparar a frequência de duas variáveis categóricas, Sexo e Medicamento, o teste mais apropriado é o Teste Qui-Quadrado de Independência. Definimos as seguintes hipóteses:
+
+    -   H₀: A proporção de homens e mulheres é a mesma nos dois grupos de tratamento.
+
+    -   H₁: A proporção de homens e mulheres é diferente entre os dois grupos.
+
+    ```{r}
+    chisq.test(tabela)
+    ```
+
+    Com nível de significância de 0,05, não se rejeita H0, ou seja, a proporção de homens e mulheres é a mesma nos dois grupos de tratamento.
+
+    Como não há suposição de normalidade da Idade para os grupos do medicamentos A e B, o teste de Wilcoxon é mais apropriado. Definimos as seguintes hipóteses:
+
+    -   H₀: A distribuição das idades é a mesma nos dois grupos.
+
+    -   H₁: A distribuição das idades é diferente entre os dois grupos.
+
+    ```{r}
+    wilcox.test(Idade~Medicamento)
+    ```
+
+    Com nível de significância de 0,05, não se rejeita H0, ou seja, a distribuição das idades é a mesma nos dois grupos.
+
+d.  A proporção dos pacientes que relataram melhora da cefaleia com o medicamento B é maior do que do medicamento A. Responda com um teste de hipóteses e nível de significância de 0,05.
+
+    A pergunta exige um teste de proporção unilateral. Definimos as seguintes hipóteses:
+
+    -   H₀: A proporção de melhora com o Medicamento B é menor ou igual que a do Medicamento A..
+
+    -   H₁: A proporção de melhora com o Medicamento B é maior que a do Medicamento A.
+
+    ```{r}
+    (tabela2 <- table(Medicamento,`Melhora da Cefaléia`))
+
+    n_melhora_B <- 215  # Sucessos no grupo B
+    n_melhora_A <- 161  # Sucessos no grupo A
+
+    n_total_B <- 121 + 161 # Total de pacientes no grupo B
+    n_total_A <- 74 + 215 # Total de pacientes no grupo A
+
+    sucessos <- c(n_melhora_B, n_melhora_A)
+    totais <- c(n_total_B, n_total_A)
+    prop.test(x = sucessos, n = totais, alternative = "greater")
+    ```
+
+    Com nível de significância de 0,05, rejeita-se H0, ou seja, a proporção de melhora com o Medicamento B é maior que a do Medicamento A.
+
+e.  Calcule o intervalo de confiança de 95% para a diferença da proporção de melhora entre os medicamentos. Interprete o resultado.
+
+    ```{r}
+    prop.test(x = sucessos, n = totais, conf.level = 0.95)
+    ```
+
+    Com 95% de confiança, a diferença na proporção de melhora (B - A) está entre 0,1260041 e 0,2846318. Como o intervalo não contém o zero e é inteiramente positivo, concluímos que o Medicamento B é significativamente mais eficaz.
+
+f.  Construa os gráficos para o sexo, idade e resultado do medicamento administrado com o objetivo de ilustrar a comparação entre os dois medicamentos.
+
+    ```{r}
+    library(ggplot2)
+    # Gráfico de barras para comparar o sexo entre os medicamentos
+    ggplot(dados3, aes(x = Sexo, fill = Medicamento)) + geom_bar(position = "dodge") + geom_text(stat='count', aes(label=..count..), position=position_dodge(width=0.9), vjust=-0.5) + labs(title = "Distribuição de Pacientes por Sexo e Medicamento", x = "Sexo", y = "Número de Pacientes", fill = "Medicamento") + theme_minimal()
+
+    # Boxplots para comparar a idade entre os medicamentos
+    ggplot(dados3, aes(x = Medicamento, y = Idade, fill = Medicamento)) + geom_boxplot() + scale_fill_manual(values = c("A" = "steelblue", "B" = "darkorange")) + labs( title = "Distribuição da Idade dos Pacientes por Medicamento", x = "Medicamento", y = "Idade (em anos)") + theme_minimal() + guides(fill="none")
+
+    # Gráfico de barras para comparar a proporção de melhora
+    ggplot(dados3, aes(x = Medicamento, fill = `Melhora da Cefaléia`)) +
+      geom_bar(position = "fill") +
+      scale_y_continuous(labels = scales::percent) +
+      labs(title = "Proporção de Melhora por Medicamento", y = "Percentual")
+    ```
+
+<!-- -->
+
+4.  Poluente atmosférico é toda e qualquer forma de matéria ou energia com intensidade e em quantidade, concentração, tempo ou características em desacordo com os níveis estabelecidos em legislação. Além disso, tornam ou podem tornar o ar impróprio, nocivo ou ofensivo à saúde, inconveniente ao bem-estar público, danoso aos materiais, à fauna e à flora ou prejudicial à segurança, ao uso e gozo da propriedade e às atividades normais da comunidade. A prefeitura de uma grande cidade realizou um levantamento da qualidade do ar em alguns pontos. Entre as informações, avaliaram-se as quantidades de partículas totais em suspensão, em m3 , com o objetivo de comparar este marcador entre estes locais.
+
+    ```{r}
+    library(readxl)
+    dados4 <- read_excel("C:/Users/richa/Desktop/Doutorado/Disciplinas/4º semestre/Análise Estatísticas em R/Atividades/Avaliação/Dados.xlsx", sheet = "Exercício4")
+    attach(dados4)
+    ```
+
+<!-- -->
+
+a.  Apresente o gráfico de boxplot das variáveis de acordo com o objetivo e calcule as estatísticas descritivas média, mediana e desvio-padrão da quantidade de partículas totais por local.
+
+    ```{r}
+    library(dplyr)
+    (estatisticas_descritivas <- dados4 %>%
+      group_by(Local) %>%
+      summarise(
+        Media = mean(`Partículas totais em suspensão`),
+        Mediana = median(`Partículas totais em suspensão`),
+        Desvio_Padrao = sd(`Partículas totais em suspensão`)
+      ))
+
+    library(ggplot2)
+    ggplot(dados4, aes(x = Local, y = `Partículas totais em suspensão`, fill = Local)) +
+      geom_boxplot() + labs(title = "Comparação de Partículas em Suspensão por Local", subtitle = "Medições da qualidade do ar em três grandes avenidas", x = "Local de Coleta", y = "Partículas Totais em Suspensão (µg/m³)") + theme_minimal() + guides(fill = "none")
+    ```
+
+b.  Com nível de significância de 0,05, avalie o objetivo da pesquisa.
+
+    Para avaliar o objetivo da pesquisa, que é comparar a quantidade de partículas em suspensão entre os três locais, o teste estatístico apropriado é a Análise de Variância (ANOVA). Verificamos se existe uma diferença estatisticamente significativa entre as médias de partículas em suspensão dos três locais:
+
+    -   H₀: As médias de poluição são iguais nos três locais.
+
+    -   H₁: A média de poluição é diferente em pelo menos um dos locais.
+
+    ```{r}
+    anova <- aov(`Partículas totais em suspensão` ~ Local, data = dados4)
+    summary(anova)
+    ```
+
+    Com nível de significância de 0,05, rejeita-se H0. Isso significa que existem evidências estatísticas suficientes para afirmar que há uma diferença significativa na quantidade média de partículas suspensas entre pelo menos dois dos locais avaliados.
+
+c.  Realize as comparações múltiplas entre os locais, se necessário e com nível de significância de 0,05. Construa o gráfico que represente o resultado desta análise.
+
+    ```{r}
+    library(car)
+    TukeyHSD(anova)
+    ```
+
+    O nível de poluição na Avenida Rio Branco é significativamente menor do que os níveis encontrados na Avenida Brasil e na Avenida São Paulo, que possuem níveis de poluição estatisticamente semelhantes entre si, formando um grupo com maior concentração de partículas em suspensão.
+
+d.  Verifique as suposições de normalidade e homocedasticidade, com nível de significância de 0,05.
+
+    Teste de Homocedastidade:
+
+    -   H₀: As variâncias são iguais entre os grupos.
+
+    -   H₁: Pelo menos uma variância é diferente.
+
+    <div>
+
+    ```{r}
+    bartlett.test(`Partículas totais em suspensão` ~ Local, data = dados4)
+    ```
+
+    </div>
+
+    Com nível de significância de 0,05, não se rejeita H0, ou seja, a suposição de homocedasticidade foi atendida. Agora, testamos a normalidade dos resíduos:
+
+    -   H₀: Os resíduos seguem uma distribuição normal.
+
+    -   H₁: Os resíduos não seguem uma distribuição normal.
+
+    <div>
+
+    ```{r}
+    shapiro.test(anova$residuals)
+    qqnorm(anova$residuals)
+    qqline(anova$residuals, col = "red")
+    ```
+
+    </div>
+
+    Com nível de significância de 0,05, não se rejeita H0. O gráfico Q-Q Plot confirma o resultado do teste estatístico Shapiro-Wilk. Ambos levam à mesma conclusão: a suposição de que os resíduos são normalmente distribuídos foi atendida.
