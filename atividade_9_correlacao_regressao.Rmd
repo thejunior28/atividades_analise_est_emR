@@ -29,7 +29,7 @@ ggplot(data=dados1,aes(x=Tempo,y=Sangue))+geom_point()+
 cor.test(Tempo,Sangue)
 ```
 
-Com nível de significância de 0,05, rejeita-se H0, ou seja, há relação linear entre a quantidade de dióxido de carbono e o tempo de serviço.
+Com nível de significância de 0,05, rejeita-se H0, ou seja, há relação linear entre a quantidade de dióxido de carbono e o tempo de serviço. O teste de correlação de Pearson resultou em um coeficiente r = 0,95, indicando uma correlação positiva muito forte entre as duas variáveis.
 
 **c.** Ajuste uma regressão linear simples para a relação entre as duas variáveis do estudo.
 
@@ -60,9 +60,10 @@ Para cada mês adicional de tempo de serviço, o nível de dióxido de carbono n
 # Análise de resíduos
 residuos <- ajuste$residuals
 shapiro.test(residuos)
+qqnorm(residuos)
 ```
 
-Com nível de significância de 0,05, rejeita-se H0, ou seja, os resíduos da reta de regressão estimada possuem distribuição normal.
+Com nível de significância de 0,05, não se rejeita H0, ou seja, os resíduos da reta de regressão estimada possuem distribuição normal. O gráfico Q-Q Plot confirma o resultado do teste estatístico Shapiro-Wilk. Ambos levam à mesma conclusão: a suposição de que os resíduos são normalmente distribuídos foi atendida.
 
 **2.** Uma pesquisa avaliou pacientes com câncer em um grande hospital. Utilizando as informações de uma amostra de pacientes sobre o estadiamento da doença e o tempo de sobrevida, em meses, determine:
 
@@ -82,8 +83,10 @@ ggplot(data=dados2,aes(x=`Tempo de sobrevida em meses`,y=Estadiamento))+geom_poi
 **b.** Se há uma relação entre as duas variáveis, com nível de significância de 0,05.
 
 ```{r}
-# Teste de Kruskal-Wallis
-kruskal.test(`Tempo de sobrevida em meses` ~ Estadiamento, data = dados2) 
+# Teste de correlação de Spearman
+cor.test(as.numeric(factor(Estadiamento)),`Tempo de sobrevida em meses`, method="spearman",exact = FALSE)
 ```
 
-Utilizando o teste de Kruskal-Wallis, uma alternativa não paramétrica, com um nível de significância de 0,05, não se rejeita-se H0, ou seja, há uma relação entre o estadiamento da doença e o tempo de sobrevida.
+Utilizando o teste de undefined, com um nível de significância de 0,05, rejeita-se H0, ou seja, há uma relação entre o estadiamento da doença e o tempo de sobrevida.
+
+O resultado indicou uma correlação negativa, forte e estatisticamente significativa entre as variáveis (ρ = -0,79, p \< 0,001). Isso confirma que há uma tendência clara de diminuição no tempo de sobrevida à medida que o estadiamento da doença avança.
