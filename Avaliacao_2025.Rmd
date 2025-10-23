@@ -192,10 +192,16 @@ a.  Apresente o número e a porcentagem de pacientes por sexo que participaram d
 
     ```{r}
     (tabela <- table(Medicamento,Sexo))
-    round(prop.table(tabela)*100,2)
+    round(prop.table(tabela, margin = 1) * 100, 2)
     ```
 
 b.  Calcule as estatísticas descritivas da idade por medicamento e verifique a suposição de normalidade com nível de significância de 0,05.
+
+    Para verificar a suposição de normalidade, definimos as seguintes hipóteses:
+
+    -   H₀: Os dados seguem uma distribuição normal.
+
+    -   H₁: Os dados seguem uma distribuição normal.
 
     ```{r}
     Idade <- dados3$`Idade (anos)`
@@ -223,7 +229,7 @@ c.  Há diferença do sexo e idade entre os grupos que receberam os diferentes m
     chisq.test(tabela)
     ```
 
-    Com nível de significância de 0,05, não se rejeita H0, ou seja, a proporção de homens e mulheres é a mesma nos dois grupos de tratamento.
+    Com nível de significância de 0,05, não se rejeita H0​ (pois χ2=0,082; p-valor = 0,775), ou seja, a proporção de homens e mulheres é a mesma nos dois grupos de tratamento.
 
     Como não há suposição de normalidade da Idade para os grupos do medicamentos A e B, o teste de Wilcoxon é mais apropriado. Definimos as seguintes hipóteses:
 
@@ -235,7 +241,7 @@ c.  Há diferença do sexo e idade entre os grupos que receberam os diferentes m
     wilcox.test(Idade~Medicamento)
     ```
 
-    Com nível de significância de 0,05, não se rejeita H0, ou seja, a distribuição das idades é a mesma nos dois grupos.
+    Com nível de significância de 0,05, não se rejeita H0​ (pois W=41697; p-valor = 0,630), ou seja, a distribuição das idades é a mesma nos dois grupos.
 
 d.  A proporção dos pacientes que relataram melhora da cefaleia com o medicamento B é maior do que do medicamento A. Responda com um teste de hipóteses e nível de significância de 0,05.
 
@@ -328,7 +334,7 @@ b.  Com nível de significância de 0,05, avalie o objetivo da pesquisa.
     summary(anova)
     ```
 
-    Com nível de significância de 0,05, rejeita-se H0. Isso significa que existem evidências estatísticas suficientes para afirmar que há uma diferença significativa na quantidade média de partículas suspensas entre pelo menos dois dos locais avaliados.
+    Com nível de significância de 0,05, rejeita-se H0​ (pois a estatística do teste F=75,68 e o p-valor \<2e−16), o que significa que existem evidências estatísticas suficientes para afirmar que há uma diferença significativa na quantidade média de partículas suspensas entre pelo menos dois dos locais avaliados.
 
 c.  Realize as comparações múltiplas entre os locais, se necessário e com nível de significância de 0,05. Construa o gráfico que represente o resultado desta análise.
 
